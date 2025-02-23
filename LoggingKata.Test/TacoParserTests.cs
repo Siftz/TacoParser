@@ -5,6 +5,7 @@ namespace LoggingKata.Test
 {
     public class TacoParserTests
     {
+        private ILog logger = new TacoLogger(); // initializing logger
         [Fact]
         public void ShouldReturnNonNullObject()
         {
@@ -21,6 +22,8 @@ namespace LoggingKata.Test
 
         [Theory]
         [InlineData("34.073638, -84.677017, Taco Bell Acwort...", -84.677017)]
+        [InlineData("33.635282, -86.684056, Taco Bell Birmingham", -86.684056)]
+        [InlineData("32.608278, -85.489219, Taco Bell Auburn", -85.489219)]   
         //Add additional inline data. Refer to your CSV file.
         public void ShouldParseLongitude(string line, double expected)
         {
@@ -31,14 +34,37 @@ namespace LoggingKata.Test
             //       represents a TacoBell location
 
             //Arrange
+            var tacoParser = new TacoParser();
+            logger.LogInfo($"Starting test: ShouldParseLongitude with input '{line}'");
 
             //Act
+            var actual = tacoParser.Parse(line);
 
             //Assert
+            Assert.NotNull(actual); //ensuring parsing does not return null
+            Assert.Equal(expected, actual.Location.Longitude, precision: 5);
+            logger.LogInfo($"Test passed: Expected {expected}, but was {actual.Location.Longitude}");
         }
 
 
         //TODO: Create a test called ShouldParseLatitude
+        [Theory]
+        [InlineData("34.073638, -84.677017, Taco Bell Acwort...", 34.073638)]
+        [InlineData("33.635282, -86.684056, Taco Bell Birmingham...", 33.635282)]
+        [InlineData("32.543810, -85.508580, Taco Bell Auburn...", 32.543810)]
+        public void ShouldParseLatitude(string line, double expected)
+        {
+            // Arrange
+            var tacoParser = new TacoParser();
+            logger.LogInfo($"Starting test: ShouldParseLatitude with input '{line}'");
+
+            // Act
+            var actual = tacoParser.Parse(line);
+
+            // Assert //Latitude instead of Longitude
+            Assert.Equal(expected, actual.Location.Latitude, precision: 5);
+            logger.LogInfo($"Test passed: Expected {expected}, but was {actual.Location.Latitude}");
+        }
 
     }
 }
